@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de Establecimientos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🗺️ Buscador de Establecimientos</h1>
+            <p>Encuentra establecimientos cerca de tu ubicación</p>
+        </header>
+
+        <div class="form-container">
+            <form action="/buscar-coordenadas" method="GET" class="search-form">
+                <div class="form-group">
+                    <label for="latitud">📍 Latitud:</label>
+                    <input type="number" 
+                           id="latitud" 
+                           name="latitud" 
+                           step="any" 
+                           placeholder="Ej: 19.4326" 
+                           required>
+                    <small>Coordenada de latitud (decimal)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="longitud">📍 Longitud:</label>
+                    <input type="number" 
+                           id="longitud" 
+                           name="longitud" 
+                           step="any" 
+                           placeholder="Ej: -99.1332" 
+                           required>
+                    <small>Coordenada de longitud (decimal)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="distancia">📏 Radio de búsqueda (metros):</label>
+                    <select id="distancia" name="distancia">
+                        <option value="500">500m</option>
+                        <option value="1000" selected>1km</option>
+                        <option value="2000">2km</option>
+                        <option value="5000">5km</option>
+                        <option value="8000">8km</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="condicionSelect">🏪 Tipo de establecimiento:</label>
+
+                    <!-- 1) Tu <select> original, con onchange -->
+                    <select id="condicionSelect" name="condicion" onchange="handleCondicionChange()">
+                        <option value="">Selecciona un tipo predefinido...</option>
+                        <option value="todos">Todos los establecimientos</option>
+                        <option value="restaurante">Restaurantes</option>
+                        <option value="farmacia">Farmacias</option>
+                        <option value="gasolinera">Gasolineras</option>
+                        <option value="banco">Bancos</option>
+                        <option value="hospital">Hospitales</option>
+                        <option value="escuela">Escuelas</option>
+                        <option value="supermercado">Supermercados</option>
+                        <option value="hotel">Hoteles</option>
+                        <option value="oxxo">OXXO</option>
+                        <option value="seven">Seven Eleven</option>
+                        <option value="personalizado">✏️ Escribir tipo personalizado</option>
+                    </select>
+
+                    <!-- 2) Input oculto que aparece sólo al elegir “personalizado” -->
+                    <input
+                        type="text"
+                        id="condicionInput"
+                        name="condicion"
+                        placeholder="Escribe tu tipo de establecimiento…"
+                        style="display: none; margin-top: .5em;"
+                        maxlength="100"
+                    >
+
+                    <!-- 3) Botón para volver al <select> si se arrepiente -->
+                    <button
+                        type="button"
+                        class="btn-volver"
+                        id="volverCondicion"
+                        style="display: none; margin-left: .5em;"
+                        onclick="volverACondicion()"
+                    >↩️ Volver</button>
+                    </div>
+
+                    <script>
+                    function handleCondicionChange() {
+                        const sel = document.getElementById('condicionSelect');
+                        const inp = document.getElementById('condicionInput');
+                        const btn = document.getElementById('volverCondicion');
+
+                        if (sel.value === 'personalizado') {
+                        // Oculta el select y deshabilítalo para que no envíe su valor
+                        sel.style.display = 'none';
+                        sel.disabled      = true;
+
+                        // Muestra el input y hazlo obligatorio
+                        inp.style.display  = 'block';
+                        inp.required       = true;
+                        inp.focus();
+
+                        // Muestra el botón “Volver”
+                        btn.style.display  = 'inline-block';
+                        } else {
+                        // Cualquier otra opción: oculta input y botón
+                        inp.style.display  = 'none';
+                        inp.required       = false;
+                        btn.style.display  = 'none';
+
+                        // Reactiva el select
+                        sel.style.display  = 'block';
+                        sel.disabled       = false;
+
+                        // Asegura que el input no aporte un valor residual
+                        inp.value = '';
+                        }
+                    }
+
+                    function volverACondicion() {
+                        const sel = document.getElementById('condicionSelect');
+                        const inp = document.getElementById('condicionInput');
+                        const btn = document.getElementById('volverCondicion');
+
+                        // Restaurar al select
+                        sel.style.display = 'block';
+                        sel.disabled      = false;
+                        sel.value         = '';      // o deja la opción que quieras como default
+
+                        // Ocultar y limpiar el input
+                        inp.style.display = 'none';
+                        inp.value         = '';
+                        inp.required      = false;
+
+                        // Ocultar el botón
+                        btn.style.display = 'none';
+                    }
+                    </script>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-search">
+                        🔍 Buscar Establecimientos
+                    </button>
+                    <button type="button" class="btn-location" onclick="obtenerUbicacion()">
+                        📍 Usar mi ubicación
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="info-section">
+            <h3>ℹ️ Información</h3>
+            <ul>
+                <li>Ingresa las coordenadas de latitud y longitud</li>
+                <li>Selecciona el radio de búsqueda</li>
+                <li>Elige el tipo de establecimiento o deja "Todos" para ver todos los establecimientos</li>
+                <li>Los resultados se mostrarán en un mapa interactivo</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function obtenerUbicacion() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    document.getElementById('latitud').value = position.coords.latitude.toFixed(6);
+                    document.getElementById('longitud').value = position.coords.longitude.toFixed(6);
+                }, function(error) {
+                    alert('No se pudo obtener la ubicación: ' + error.message);
+                });
+            } else {
+                alert('La geolocalización no es soportada por este navegador.');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados de Búsqueda</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📊 Resultados de Búsqueda</h1>
+            <a href="/" class="btn-back">← Volver a buscar</a>
+        </header>
+
+        {% if mensaje %}
+            <div class="alert alert-info">
+                <h3>{{ mensaje }}</h3>
+                <p>Intenta con diferentes parámetros de búsqueda.</p>
+            </div>
+        {% else %}
+            <div class="results-info">
+                <div class="info-card">
+                    <h3>📈 Estadísticas</h3>
+                    <p><strong>Tipo:</strong> {{ condicion }}</p>
+                    <p><strong>Ubicación:</strong> {{ latitud }}, {{ longitud }}</p>
+                    <p><strong>Radio:</strong> {{ distancia }}m</p>
+                    <p><strong>Encontrados:</strong> {{ total_encontrados }}</p>
+                    <p><strong>Procesados:</strong> {{ total_procesados }}</p>
+                </div>
+            </div>
+
+            <div class="map-container">
+                <h3>🗺️ Mapa de Resultados</h3>
+                <div class="map-wrapper">
+                    {{ mapa_html|safe }}
+                </div>
+            </div>
+
+            <div class="legend">
+                <h4>🏷️ Leyenda</h4>
+                <div class="legend-item">
+                    <span class="marker red">⭐</span> Tu ubicación de búsqueda
+                </div>
+                <div class="legend-item">
+                    <span class="marker blue">ℹ️</span> Establecimientos encontrados
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="actions">
+            <a href="/" class="btn-primary">🔍 Nueva búsqueda</a>
+        </div>
+    </div>
+</body>
+</html>

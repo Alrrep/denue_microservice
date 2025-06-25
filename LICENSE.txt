@@ -1,0 +1,8 @@
+MIT License
+
+Copyright (c) 2025 Perla
+
+You are free to use, copy, modify, and distribute this software for any purpose, even commercially, 
+as long as you include this notice and the original license.
+
+This software is provided "as is", without warranty of any kind.
